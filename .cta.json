@@ -1,0 +1,26 @@
+{
+  "projectName": "aura-hype-web",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "pnpm",
+  "addOnOptions": {
+    "prisma": {
+      "database": "postgres"
+    }
+  },
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "nitro",
+    "start",
+    "prisma",
+    "tRPC",
+    "shadcn",
+    "tanchat",
+    "tanstack-query",
+    "store"
+  ]
+}

@@ -1,0 +1,7 @@
+name = "r2-list-temp"
+main = "r2-list-worker.ts"
+compatibility_date = "2024-01-01"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "aura-hype-listing-images"
