@@ -108,17 +108,27 @@ export function ProductForm({
 	const handleExtraImageUpload = async (
 		e: React.ChangeEvent<HTMLInputElement>,
 	) => {
-		const file = e.target.files?.[0];
-		if (!file) return;
+		const files = e.target.files;
+		if (!files || files.length === 0) return;
 
 		setExtraImageUploading(true);
-		const key = await uploadImage(file);
-		if (key) {
+
+		// Upload all files in parallel
+		const uploadPromises = Array.from(files).map((file) => uploadImage(file));
+		const results = await Promise.all(uploadPromises);
+
+		// Filter out failed uploads (null values) and add successful ones
+		const successfulKeys = results.filter((key): key is string => key !== null);
+
+		if (successfulKeys.length > 0) {
 			setFormData((prev) => ({
 				...prev,
-				extraImages: [...prev.extraImages, key],
+				extraImages: [...prev.extraImages, ...successfulKeys],
 			}));
 		}
+
+		// Reset the input so the same files can be selected again if needed
+		e.target.value = "";
 		setExtraImageUploading(false);
 	};
 
@@ -267,11 +277,14 @@ export function ProductForm({
 								</div>
 							))}
 							<label className="cursor-pointer">
-								<div className="flex items-center justify-center h-20 w-20 border-2 border-dashed rounded-md hover:bg-muted">
+								<div className="flex flex-col items-center justify-center h-20 w-20 border-2 border-dashed rounded-md hover:bg-muted">
 									{extraImageUploading ? (
 										<Loader2 className="h-4 w-4 animate-spin" />
 									) : (
-										<Upload className="h-4 w-4" />
+										<>
+											<Upload className="h-4 w-4" />
+											<span className="text-xs mt-1 text-muted-foreground">Multiple</span>
+										</>
 									)}
 								</div>
 								<input
@@ -280,6 +293,7 @@ export function ProductForm({
 									onChange={handleExtraImageUpload}
 									className="hidden"
 									disabled={extraImageUploading}
+									multiple
 								/>
 							</label>
 						</div>

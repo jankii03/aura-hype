@@ -1,118 +1,77 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Menu, Search, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { luxuryBrands, sneakerBrands } from "../data/brands";
+import { useTRPC } from "@/integrations/trpc/react";
+import { getImageUrl } from "@/lib/utils";
 
-export const Route = createFileRoute("/")({ component: App });
+interface Product {
+	id: number;
+	name: string;
+	price: string;
+	image: string;
+	brand: string;
+	category: string | null;
+	description: string | null;
+	createdAt: Date | null;
+	extraImages: { id: number; image: string; productId: number }[];
+}
+
+export const Route = createFileRoute("/")({
+	component: App,
+	loader: async ({ context }) => {
+		await context.queryClient.prefetchQuery(
+			context.trpc.products.list.queryOptions(),
+		);
+	},
+});
 
 function App() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const carouselRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+	const trpc = useTRPC();
 
-	const getImageUrl = (r2Key: string) => {
-		const r2PublicUrl = import.meta.env.VITE_R2_PUBLIC_URL;
-		if (r2PublicUrl) {
-			return `${r2PublicUrl}/${r2Key}`;
+	const productsQuery = useQuery(trpc.products.list.queryOptions());
+	const products = (productsQuery.data ?? []) as Product[];
+
+	// Create brand name to path mapping
+	const allBrands = [...sneakerBrands, ...luxuryBrands];
+	const brandPathMap = useMemo(() => {
+		const map = new Map<string, string>();
+		for (const brand of allBrands) {
+			map.set(brand.name.toLowerCase(), brand.path);
 		}
-		return `/api/r2-image?key=${encodeURIComponent(r2Key)}`;
-	};
+		return map;
+	}, []);
 
-	const brands = [
-		{
-			name: "LOUIS VUITTON",
-			products: [
-				{
-					id: 1,
-					name: "Louis Vuitton Trainer Sneaker Yellow Monogram Denim White",
-					price: "$150.00",
-					image: getImageUrl("00406430-6192-456e-9f34-724d5426e303.jpg"),
-				},
-				{
-					id: 2,
-					name: "Louis Vuitton Trainer Sneaker Light Blue White",
-					price: "$160.00",
-					image: getImageUrl("00c8c7b9-22b9-47a4-8bfc-69526d22d114(1).jpg"),
-				},
-				{
-					id: 3,
-					name: "Louis Vuitton Trainer Sneaker Monogram Denim White Blue",
-					price: "$155.00",
-					image: getImageUrl("00e62858-1dcf-4388-b2a5-95619ce6b759.jpg"),
-				},
-				{
-					id: 7,
-					name: "Louis Vuitton Trainer Sneaker Green White",
-					price: "$165.00",
-					image: getImageUrl("0354375f-41b7-41ba-935f-c93d851c7593.jpg"),
-				},
-				{
-					id: 8,
-					name: "Louis Vuitton Trainer Sneaker Blue Damier 3D Denim Blue",
-					price: "$170.00",
-					image: getImageUrl("0c9ecf18-d1db-475a-a148-53f911136ac8.jpg"),
-				},
-				{
-					id: 9,
-					name: "Louis Vuitton Trainer Sneaker Navy Blue Light Blue White",
-					price: "$158.00",
-					image: getImageUrl("0fc55ba7-14ee-49f9-b49f-248f23bfcdd1(1).jpg"),
-				},
-				{
-					id: 10,
-					name: "Louis Vuitton Trainer Sneaker White Comic Motifs",
-					price: "$175.00",
-					image: getImageUrl("16913a7a-e712-47d0-b791-6bcd1d7f7f39.jpg"),
-				},
-			],
-		},
-		{
-			name: "ASICS",
-			products: [
-				{
-					id: 4,
-					name: "ASICS GEL-KAYANO 14",
-					price: "$140.00",
-					image: getImageUrl("1asics-demo-shoe.jfif"),
-				},
-				{
-					id: 5,
-					name: "ASICS GEL-NYC",
-					price: "$130.00",
-					image: getImageUrl("1asics-demo-shoe.jfif"),
-				},
-				{
-					id: 6,
-					name: "ASICS GEL-1130",
-					price: "$120.00",
-					image: getImageUrl("1asics-demo-shoe.jfif"),
-				},
-				{
-					id: 11,
-					name: "ASICS GEL-QUANTUM 360",
-					price: "$150.00",
-					image: getImageUrl("1asics-demo-shoe.jfif"),
-				},
-				{
-					id: 12,
-					name: "ASICS GEL-NIMBUS 25",
-					price: "$160.00",
-					image: getImageUrl("1asics-demo-shoe.jfif"),
-				},
-				{
-					id: 13,
-					name: "ASICS GEL-CUMULUS 25",
-					price: "$135.00",
-					image: getImageUrl("1asics-demo-shoe.jfif"),
-				},
-				{
-					id: 14,
-					name: "ASICS GT-2000 12",
-					price: "$145.00",
-					image: getImageUrl("1asics-demo-shoe.jfif"),
-				},
-			],
-		},
-	];
+	// Group products by brand (limited to 5 per brand for homepage)
+	const brands = useMemo(() => {
+		if (products.length === 0) return [];
+
+		const brandMap = new Map<string, Product[]>();
+
+		for (const product of products) {
+			const existing = brandMap.get(product.brand);
+			if (existing) {
+				existing.push(product);
+			} else {
+				brandMap.set(product.brand, [product]);
+			}
+		}
+
+		return Array.from(brandMap.entries()).map(([name, brandProducts]) => ({
+			name: name.toUpperCase(),
+			path: brandPathMap.get(name.toLowerCase()) || `/brands/${name.toLowerCase().replace(/\s+/g, "-").replace(/&/g, "")}`,
+			totalCount: brandProducts.length,
+			products: brandProducts.slice(0, 5).map((p) => ({
+				id: p.id,
+				name: p.name,
+				price: p.price,
+				image: getImageUrl(p.image),
+			})),
+		}));
+	}, [products, brandPathMap]);
 
 	const scrollContainer = (index: number, direction: "left" | "right") => {
 		const container = carouselRefs.current[index];
@@ -225,9 +184,19 @@ function App() {
 					<div className="max-w-7xl mx-auto px-6">
 						{brands.map((brand, brandIndex) => (
 							<div key={brand.name} className={brandIndex > 0 ? "mt-16" : ""}>
-								<h2 className="text-3xl font-bold text-black mb-8 uppercase">
-									{brand.name}
-								</h2>
+								<div className="flex items-center justify-between mb-8">
+									<h2 className="text-3xl font-bold text-black uppercase">
+										{brand.name}
+									</h2>
+									{brand.totalCount > 5 && (
+										<Link
+											to={brand.path}
+											className="text-blue-600 hover:text-blue-800 font-semibold text-sm uppercase tracking-wide"
+										>
+											View All ({brand.totalCount})
+										</Link>
+									)}
+								</div>
 
 								<div className="relative">
 									{/* Left Arrow */}
@@ -249,8 +218,10 @@ function App() {
 										style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
 									>
 										{brand.products.map((product) => (
-											<div
+											<Link
 												key={product.id}
+												to="/product/$productId"
+												params={{ productId: String(product.id) }}
 												className="flex-none w-72 bg-white rounded-lg shadow-lg hover:shadow-2xl overflow-hidden cursor-pointer"
 											>
 												<div className="aspect-square bg-gray-200 overflow-hidden">
@@ -268,7 +239,7 @@ function App() {
 														{product.price}
 													</p>
 												</div>
-											</div>
+											</Link>
 										))}
 									</div>
 
