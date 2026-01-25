@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 import { Route as ApiR2UploadRouteImport } from './routes/api.r2-upload'
 import { Route as ApiR2ListImagesRouteImport } from './routes/api.r2-list-images'
 import { Route as ApiR2ImageRouteImport } from './routes/api.r2-image'
@@ -41,11 +40,6 @@ const IndexRoute = IndexRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductProductIdRoute = ProductProductIdRouteImport.update({
-  id: '/product/$productId',
-  path: '/product/$productId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiR2UploadRoute = ApiR2UploadRouteImport.update({
@@ -154,7 +148,6 @@ export interface FileRoutesByFullPath {
   '/api/r2-image': typeof ApiR2ImageRouteWithChildren
   '/api/r2-list-images': typeof ApiR2ListImagesRoute
   '/api/r2-upload': typeof ApiR2UploadRoute
-  '/product/$productId': typeof ProductProductIdRoute
   '/admin': typeof AdminIndexRoute
   '/admin/products/$productId': typeof AdminProductsProductIdRoute
   '/admin/products/new': typeof AdminProductsNewRoute
@@ -179,7 +172,6 @@ export interface FileRoutesByTo {
   '/api/r2-image': typeof ApiR2ImageRouteWithChildren
   '/api/r2-list-images': typeof ApiR2ListImagesRoute
   '/api/r2-upload': typeof ApiR2UploadRoute
-  '/product/$productId': typeof ProductProductIdRoute
   '/admin': typeof AdminIndexRoute
   '/admin/products/$productId': typeof AdminProductsProductIdRoute
   '/admin/products/new': typeof AdminProductsNewRoute
@@ -205,7 +197,6 @@ export interface FileRoutesById {
   '/api/r2-image': typeof ApiR2ImageRouteWithChildren
   '/api/r2-list-images': typeof ApiR2ListImagesRoute
   '/api/r2-upload': typeof ApiR2UploadRoute
-  '/product/$productId': typeof ProductProductIdRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/products/$productId': typeof AdminProductsProductIdRoute
   '/admin/products/new': typeof AdminProductsNewRoute
@@ -232,7 +223,6 @@ export interface FileRouteTypes {
     | '/api/r2-image'
     | '/api/r2-list-images'
     | '/api/r2-upload'
-    | '/product/$productId'
     | '/admin'
     | '/admin/products/$productId'
     | '/admin/products/new'
@@ -257,7 +247,6 @@ export interface FileRouteTypes {
     | '/api/r2-image'
     | '/api/r2-list-images'
     | '/api/r2-upload'
-    | '/product/$productId'
     | '/admin'
     | '/admin/products/$productId'
     | '/admin/products/new'
@@ -282,7 +271,6 @@ export interface FileRouteTypes {
     | '/api/r2-image'
     | '/api/r2-list-images'
     | '/api/r2-upload'
-    | '/product/$productId'
     | '/admin/'
     | '/admin/products/$productId'
     | '/admin/products/new'
@@ -308,7 +296,6 @@ export interface RootRouteChildren {
   ApiR2ImageRoute: typeof ApiR2ImageRouteWithChildren
   ApiR2ListImagesRoute: typeof ApiR2ListImagesRoute
   ApiR2UploadRoute: typeof ApiR2UploadRoute
-  ProductProductIdRoute: typeof ProductProductIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminProductsProductIdRoute: typeof AdminProductsProductIdRoute
   AdminProductsNewRoute: typeof AdminProductsNewRoute
@@ -342,13 +329,6 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/product/$productId': {
-      id: '/product/$productId'
-      path: '/product/$productId'
-      fullPath: '/product/$productId'
-      preLoaderRoute: typeof ProductProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/r2-upload': {
@@ -511,7 +491,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiR2ImageRoute: ApiR2ImageRouteWithChildren,
   ApiR2ListImagesRoute: ApiR2ListImagesRoute,
   ApiR2UploadRoute: ApiR2UploadRoute,
-  ProductProductIdRoute: ProductProductIdRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminProductsProductIdRoute: AdminProductsProductIdRoute,
   AdminProductsNewRoute: AdminProductsNewRoute,
