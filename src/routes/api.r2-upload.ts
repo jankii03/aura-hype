@@ -1,6 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -28,9 +26,20 @@ async function handler({ request }: { request: Request }) {
 		const extension = file.name.split(".").pop() || "jpg";
 		const key = `${crypto.randomUUID()}.${extension}`;
 
-		// Access the R2 bucket binding
-		const env = (globalThis as any).cloudflare?.env || (globalThis as any);
-		const bucket = env?.IMAGES;
+		// Access the R2 bucket binding - match pattern from db.server.ts
+		const getR2Bucket = () => {
+			// Cloudflare Pages style
+			const cfEnv = (globalThis as any).cloudflare?.env;
+			if (cfEnv?.IMAGES) {
+				return cfEnv.IMAGES;
+			}
+			// Direct Workers binding on globalThis
+			if (typeof (globalThis as any).IMAGES !== "undefined") {
+				return (globalThis as any).IMAGES;
+			}
+			return undefined;
+		};
+		const bucket = getR2Bucket();
 
 		if (bucket) {
 			// Production: Upload to R2
@@ -42,6 +51,10 @@ async function handler({ request }: { request: Request }) {
 			});
 		} else {
 			// Development: Save to local public/uploads folder
+			// Use dynamic imports to avoid bundling Node.js modules for Cloudflare
+			const { mkdir, writeFile } = await import("node:fs/promises");
+			const { join } = await import("node:path");
+
 			const uploadsDir = join(process.cwd(), "public", "uploads");
 			await mkdir(uploadsDir, { recursive: true });
 

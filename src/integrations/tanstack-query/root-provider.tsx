@@ -6,21 +6,29 @@ import { TRPCProvider } from "@/integrations/trpc/react";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 
 function getUrl() {
-	const base = (() => {
-		if (typeof window !== "undefined") return "";
-		return `http://localhost:${process.env.PORT ?? 3000}`;
-	})();
-	return `${base}/api/trpc`;
+	// Client-side: use relative URL
+	if (typeof window !== "undefined") {
+		return "/api/trpc";
+	}
+
+	// Local development: use localhost
+	return `http://localhost:${process.env.PORT ?? 3000}/api/trpc`;
 }
 
 export const trpcClient = createTRPCClient<TRPCRouter>({
 	links: [
 		httpBatchStreamLink({
 			transformer: superjson,
-			url: getUrl(),
+			url: getUrl,
 		}),
 	],
 });
+
+// Helper to check if we're on Cloudflare (for skipping SSR prefetch)
+export const isCloudflare = () => {
+	if (typeof window !== "undefined") return false;
+	return !!(globalThis as any).cloudflare?.env;
+};
 
 export function getContext() {
 	const queryClient = new QueryClient({

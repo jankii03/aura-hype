@@ -4,6 +4,7 @@ import { ChevronLeft, Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { luxuryBrands, sneakerBrands } from "@/data/brands";
 import { useTRPC } from "@/integrations/trpc/react";
+import { isCloudflare } from "@/integrations/tanstack-query/root-provider";
 import { getImageUrl } from "@/lib/utils";
 
 interface Product {
@@ -17,6 +18,10 @@ interface Product {
 export const Route = createFileRoute("/brands/nike/")({
 	component: NikePage,
 	loader: async ({ context }) => {
+		// Skip SSR prefetching on Cloudflare - client will fetch after hydration
+		if (isCloudflare()) {
+			return;
+		}
 		await context.queryClient.prefetchQuery(
 			context.trpc.products.list.queryOptions({ brand: "Nike" }),
 		);

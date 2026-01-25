@@ -33,8 +33,20 @@ export const Route = createFileRoute("/api/r2-image")({
 				}
 
 				try {
-					// Access the R2 bucket binding (defined in wrangler.toml as IMAGES)
-					const bucket = globalThis.IMAGES;
+					// Access the R2 bucket binding - match pattern from db.server.ts
+					const getR2Bucket = () => {
+						// Cloudflare Pages style
+						const cfEnv = (globalThis as any).cloudflare?.env;
+						if (cfEnv?.IMAGES) {
+							return cfEnv.IMAGES;
+						}
+						// Direct Workers binding on globalThis
+						if (typeof (globalThis as any).IMAGES !== "undefined") {
+							return (globalThis as any).IMAGES;
+						}
+						return undefined;
+					};
+					const bucket = getR2Bucket();
 
 					if (!bucket) {
 						console.error(

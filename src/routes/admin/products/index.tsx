@@ -14,11 +14,16 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { brandNames } from "@/data/all-brands";
+import { isCloudflare } from "@/integrations/tanstack-query/root-provider";
 import { useTRPC } from "@/integrations/trpc/react";
 
 export const Route = createFileRoute("/admin/products/")({
 	component: ProductsPage,
 	loader: async ({ context }) => {
+		// Skip SSR prefetching on Cloudflare - client will fetch after hydration
+		if (isCloudflare()) {
+			return;
+		}
 		await context.queryClient.prefetchQuery(
 			context.trpc.products.list.queryOptions(),
 		);

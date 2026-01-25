@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { luxuryBrands, sneakerBrands } from "@/data/brands";
 import { useTRPC } from "@/integrations/trpc/react";
 import { getImageUrl } from "@/lib/utils";
+import { isCloudflare } from "@/integrations/tanstack-query/root-provider";
 
 interface Product {
 	id: number;
@@ -17,6 +18,10 @@ interface Product {
 export const Route = createFileRoute("/brands/louis-vuitton/")({
 	component: LouisVuittonPage,
 	loader: async ({ context }) => {
+		// Skip SSR prefetching on Cloudflare - client will fetch after hydration
+		if (isCloudflare()) {
+			return;
+		}
 		await context.queryClient.prefetchQuery(
 			context.trpc.products.list.queryOptions({ brand: "Louis Vuitton" }),
 		);

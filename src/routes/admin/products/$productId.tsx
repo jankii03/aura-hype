@@ -6,11 +6,16 @@ import {
 	type ProductFormData,
 } from "@/components/admin/ProductForm";
 import { Button } from "@/components/ui/button";
+import { isCloudflare } from "@/integrations/tanstack-query/root-provider";
 import { useTRPC } from "@/integrations/trpc/react";
 
 export const Route = createFileRoute("/admin/products/$productId")({
 	component: EditProductPage,
 	loader: async ({ context, params }) => {
+		// Skip SSR prefetching on Cloudflare - client will fetch after hydration
+		if (isCloudflare()) {
+			return;
+		}
 		await context.queryClient.prefetchQuery(
 			context.trpc.products.byId.queryOptions({ id: Number(params.productId) }),
 		);

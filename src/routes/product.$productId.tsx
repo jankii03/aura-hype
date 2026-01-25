@@ -4,11 +4,16 @@ import { ChevronLeft, ChevronRight, Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { luxuryBrands, sneakerBrands } from "@/data/brands";
 import { useTRPC } from "@/integrations/trpc/react";
+import { isCloudflare } from "@/integrations/tanstack-query/root-provider";
 import { getImageUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/product/$productId")({
 	component: ProductDetailPage,
 	loader: async ({ context, params }) => {
+		// Skip SSR prefetching on Cloudflare - client will fetch after hydration
+		if (isCloudflare()) {
+			return;
+		}
 		const productId = parseInt(params.productId, 10);
 		await context.queryClient.prefetchQuery(
 			context.trpc.products.byId.queryOptions({ id: productId }),

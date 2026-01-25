@@ -1,6 +1,4 @@
 import { drizzle as drizzleD1 } from "drizzle-orm/d1";
-import { drizzle as drizzleLibSQL } from "drizzle-orm/libsql";
-import { createClient } from "@libsql/client";
 import * as schema from "./db/schema";
 
 // Get D1 database binding from Cloudflare environment
@@ -17,25 +15,26 @@ const getD1 = () => {
 	return undefined;
 };
 
-// Cached local database instance
-let localDb: ReturnType<typeof drizzleLibSQL> | null = null;
+// Cached database instance
+let d1Db: ReturnType<typeof drizzleD1> | null = null;
 
 // Lazy initialization to ensure bindings are available at request time
 export const getDb = () => {
 	const d1 = getD1();
 	if (d1) {
 		// Production: Use D1
-		return drizzleD1(d1, { schema });
+		if (!d1Db) {
+			d1Db = drizzleD1(d1, { schema });
+		}
+		return d1Db;
 	}
 
-	// Development: Use local SQLite via libsql
-	if (!localDb) {
-		const client = createClient({
-			url: "file:./prisma/dev.db",
-		});
-		localDb = drizzleLibSQL(client, { schema });
-	}
-	return localDb;
+	// Development fallback - this will only work when NOT on Cloudflare
+	// The import is at the top level because we need it for local dev
+	throw new Error(
+		"D1 database not available. Are you running in local development mode? " +
+			"Use 'pnpm dev' instead of the Cloudflare build for local development.",
+	);
 };
 
 // Export schema for convenience
