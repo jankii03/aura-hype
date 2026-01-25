@@ -176,3 +176,86 @@ ANTHROPIC_API_KEY=                 # Optional: for AI features
 
 - Use `cross-env` for setting environment variables in npm scripts
 - Example: `cross-env NITRO_PRESET=cloudflare-pages vite build`
+
+## Frontend Routes Structure
+
+### Homepage (`src/routes/index.tsx`)
+- Displays products grouped by brand (limited to 5 per brand)
+- Shows "View All (X)" link when brand has more than 5 products
+- Horizontal carousel for each brand with scroll arrows
+- Slide-out navigation menu with all brand links
+- Fetches products from database via tRPC `products.list`
+
+### Product Detail Page (`src/routes/product.$productId.tsx`)
+- Shows product with image gallery (main + extra images)
+- Thumbnail strip for navigation between images
+- Arrow buttons for prev/next image
+- Consistent navigation bar with slide-out menu
+- Dark theme with glassmorphism card design
+- Fetches product via tRPC `products.byId`
+
+### Brand Pages (`src/routes/brands/*/index.tsx`)
+All 12 brand pages follow the same pattern:
+- **Sneaker brands**: Nike, Jordan, Asics, New Balance
+- **Luxury brands**: Louis Vuitton, Amiri, Balenciaga, Bape, Dior, Dolce & Gabbana, Gucci, Prada
+
+Each brand page:
+- Fetches products filtered by brand name via tRPC
+- Uses route loader for SSR prefetching
+- Has slide-out navigation menu
+- Auto-hiding header on scroll
+- Links products to detail page
+
+Pattern:
+```typescript
+export const Route = createFileRoute("/brands/[brand]/")({
+  component: BrandPage,
+  loader: async ({ context }) => {
+    await context.queryClient.prefetchQuery(
+      context.trpc.products.list.queryOptions({ brand: "BrandName" }),
+    );
+  },
+});
+```
+
+### Navigation Components
+All pages share:
+- Hamburger menu → slide-out sidebar with brand links
+- Back button (ChevronLeft) → returns to homepage
+- Search button (placeholder)
+- Auto-hiding header on scroll down, reappears on scroll up
+
+Brand data is centralized in `src/data/brands.ts`:
+- `sneakerBrands` - array of { name, path }
+- `luxuryBrands` - array of { name, path }
+
+## Admin Features
+
+### Product Form (`src/components/admin/ProductForm.tsx`)
+- Main image upload (single file)
+- Extra images upload (multiple files at once)
+- Brand selection from predefined list
+- Category selection
+- All uploads go to R2 (production) or `/uploads/` (dev)
+
+### Brand List
+Brands are defined in `src/data/all-brands.ts` for admin dropdown and `src/data/brands.ts` for navigation.
+
+## Local Development Database
+
+The `src/db.server.ts` supports both:
+- **Production**: Cloudflare D1 via bindings
+- **Development**: Local SQLite via `@libsql/client`
+
+```typescript
+// Falls back to local SQLite when D1 binding not available
+import { createClient } from "@libsql/client";
+const client = createClient({ url: "file:./prisma/dev.db" });
+```
+
+## Image URL Resolution
+
+The `getImageUrl()` helper in `src/lib/utils.ts`:
+- Detects UUID format images (locally uploaded)
+- Returns `/uploads/{key}` for local dev
+- Returns R2 public URL or API proxy for production
