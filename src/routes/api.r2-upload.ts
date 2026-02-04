@@ -26,44 +26,30 @@ async function handler({ request }: { request: Request }) {
 		const extension = file.name.split(".").pop() || "jpg";
 		const key = `${crypto.randomUUID()}.${extension}`;
 
-		// Access the R2 bucket binding - match pattern from db.server.ts
-		const getR2Bucket = () => {
-			// Cloudflare Pages style
-			const cfEnv = (globalThis as any).cloudflare?.env;
-			if (cfEnv?.IMAGES) {
-				return cfEnv.IMAGES;
-			}
-			// Direct Workers binding on globalThis
-			if (typeof (globalThis as any).IMAGES !== "undefined") {
-				return (globalThis as any).IMAGES;
-			}
-			return undefined;
-		};
-		const bucket = getR2Bucket();
+		// Access the R2 bucket binding
+		const g = globalThis as any;
+		const bucket =
+			g.cloudflare?.env?.IMAGES ||
+			g.__env__?.IMAGES ||
+			g.IMAGES;
 
-		if (bucket) {
-			// Production: Upload to R2
-			const arrayBuffer = await file.arrayBuffer();
-			await bucket.put(key, arrayBuffer, {
-				httpMetadata: {
-					contentType: file.type,
-				},
-			});
-		} else {
-			// Development: Save to local public/uploads folder
-			// Use dynamic imports to avoid bundling Node.js modules for Cloudflare
-			const { mkdir, writeFile } = await import("node:fs/promises");
-			const { join } = await import("node:path");
-
-			const uploadsDir = join(process.cwd(), "public", "uploads");
-			await mkdir(uploadsDir, { recursive: true });
-
-			const arrayBuffer = await file.arrayBuffer();
-			const filePath = join(uploadsDir, key);
-			await writeFile(filePath, Buffer.from(arrayBuffer));
-
-			console.log(`[Dev] Saved upload to: ${filePath}`);
+		if (!bucket) {
+			const envKeys = Object.keys(g.cloudflare?.env || {});
+			return new Response(
+				JSON.stringify({
+					error: "R2 bucket binding not found",
+					availableBindings: envKeys,
+				}),
+				{ status: 500, headers: { "Content-Type": "application/json" } },
+			);
 		}
+
+		const arrayBuffer = await file.arrayBuffer();
+		await bucket.put(key, arrayBuffer, {
+			httpMetadata: {
+				contentType: file.type,
+			},
+		});
 
 		return new Response(JSON.stringify({ key }), {
 			status: 200,
@@ -72,8 +58,11 @@ async function handler({ request }: { request: Request }) {
 			},
 		});
 	} catch (error) {
-		console.error("Error uploading file:", error);
-		return new Response("Error uploading file", { status: 500 });
+		const message = error instanceof Error ? error.message : String(error);
+		return new Response(JSON.stringify({ error: message }), {
+			status: 500,
+			headers: { "Content-Type": "application/json" },
+		});
 	}
 }
 

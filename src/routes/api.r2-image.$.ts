@@ -19,20 +19,12 @@ async function handler({
 	}
 
 	try {
-		// Access the R2 bucket binding - match pattern from db.server.ts
-		const getR2Bucket = () => {
-			// Cloudflare Pages style
-			const cfEnv = (globalThis as any).cloudflare?.env;
-			if (cfEnv?.IMAGES) {
-				return cfEnv.IMAGES;
-			}
-			// Direct Workers binding on globalThis
-			if (typeof (globalThis as any).IMAGES !== "undefined") {
-				return (globalThis as any).IMAGES;
-			}
-			return undefined;
-		};
-		const bucket = getR2Bucket();
+		// Access the R2 bucket binding
+		const g = globalThis as any;
+		const bucket =
+			g.cloudflare?.env?.IMAGES ||
+			g.__env__?.IMAGES ||
+			g.IMAGES;
 
 		if (!bucket) {
 			console.error(
