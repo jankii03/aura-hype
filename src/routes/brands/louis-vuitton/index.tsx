@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+\import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
