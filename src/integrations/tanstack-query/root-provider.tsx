@@ -5,29 +5,27 @@ import superjson from "superjson";
 import { TRPCProvider } from "@/integrations/trpc/react";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 
-function getUrl() {
-	// Client-side: use relative URL
-	if (typeof window !== "undefined") {
-		return "/api/trpc";
-	}
-
-	// Local development: use localhost
-	return `http://localhost:${process.env.PORT ?? 3000}/api/trpc`;
-}
-
 export const trpcClient = createTRPCClient<TRPCRouter>({
 	links: [
 		httpBatchStreamLink({
 			transformer: superjson,
-			url: getUrl,
+			// Use relative URL - works on both client and server when SSR prefetch is skipped
+			url: "/api/trpc",
 		}),
 	],
 });
 
 // Helper to check if we're on Cloudflare (for skipping SSR prefetch)
+// On Cloudflare, we can't make HTTP requests to ourselves during SSR
 export const isCloudflare = () => {
 	if (typeof window !== "undefined") return false;
-	return !!(globalThis as any).cloudflare?.env;
+	// Check for Cloudflare-specific globals
+	const g = globalThis as any;
+	// navigator.userAgent contains "Cloudflare-Workers" on Cloudflare
+	const isWorker = typeof navigator !== "undefined" &&
+		navigator.userAgent?.includes("Cloudflare-Workers");
+	// Also check for cloudflare env or __env__ patterns
+	return isWorker || !!(g.cloudflare?.env || g.__env__);
 };
 
 export function getContext() {

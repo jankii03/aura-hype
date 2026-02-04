@@ -16,12 +16,12 @@ pnpm lint                   # Lint with Biome
 pnpm format                 # Format with Biome
 pnpm check                  # Combined lint + format check
 
-# Database (Prisma + D1)
-npx prisma generate         # Generate Prisma client (no env vars needed)
+# Database (Drizzle + D1)
+npx prisma generate         # Generate Prisma client (legacy, may not be needed)
 pnpm db:studio              # Open Prisma Studio (local)
 
 # Deployment
-pnpm deploy                 # Build for Cloudflare Pages and deploy
+pnpm run deploy             # Build for Cloudflare Pages and deploy (use `run` to avoid pnpm built-in)
 
 # D1 Remote Database
 npx wrangler d1 execute aura-hype-db --remote --file=prisma/migrations/init.sql
@@ -33,7 +33,7 @@ npx wrangler d1 execute aura-hype-db --remote --file=prisma/migrations/init.sql
 - **Routing**: TanStack Router (file-based in `src/routes/`)
 - **State**: TanStack Query (server state)
 - **API**: tRPC with SuperJSON transformer
-- **Database**: Prisma ORM with Cloudflare D1 (SQLite)
+- **Database**: Drizzle ORM with Cloudflare D1 (SQLite)
 - **Storage**: Cloudflare R2 for images
 - **Styling**: Tailwind CSS v4 + shadcn/ui components
 - **Deployment**: Cloudflare Pages
@@ -49,8 +49,8 @@ npx wrangler d1 execute aura-hype-db --remote --file=prisma/migrations/init.sql
 
 ### Server vs Client Code
 - Files ending in `.server.ts` are server-only (excluded from client bundles)
-- Database access only in `src/db.server.ts`
-- Prisma client generated to `src/generated/prisma/`
+- Database access only in `src/db.server.ts` (uses Drizzle ORM with D1)
+- Drizzle schema defined in `src/db/schema.ts`
 
 ### Key Directories
 - `src/routes/` - File-based routes
@@ -104,9 +104,16 @@ These packages add significant bundle size and should NOT be added unless absolu
 - `@tanstack/ai-*` packages - AI/chat functionality
 
 ### Deployment Process
-1. Build creates `dist/` with Cloudflare Pages output
-2. Wrangler deploys to Cloudflare Pages
+1. `pnpm run deploy` builds with `cloudflare-pages` preset and deploys
+2. Build creates `dist/` with `_worker.js/index.js` (single inlined bundle)
 3. D1 and R2 bindings are configured in `wrangler.toml`
+4. Deploys to preview URLs by default (branch-based); production requires deploying from `main`
+
+### Current Deployment
+- **Cloudflare Pages project**: `aura-hype-web`
+- **Production URL**: `aura-hype-web.pages.dev` (no production deployment yet)
+- **Preview URL pattern**: `<hash>.aura-hype-web.pages.dev`
+- **Branch alias**: `deployment-workers.aura-hype-web.pages.dev`
 
 ### First-Time D1 Setup
 After deploying, run the migration on remote D1:
@@ -114,24 +121,22 @@ After deploying, run the migration on remote D1:
 npx wrangler d1 execute aura-hype-db --remote --file=prisma/migrations/init.sql
 ```
 
-## Prisma + D1 Configuration
+## Drizzle + D1 Configuration
 
 ### Schema Location
-- `prisma/schema.prisma` - Prisma schema
-- `prisma/migrations/init.sql` - D1 migration SQL
+- `src/db/schema.ts` - Drizzle schema (products, extraImages, todos tables)
+- `prisma/migrations/init.sql` - D1 migration SQL (still used for remote D1 setup)
 
-### Prisma Client for D1
-The `src/db.server.ts` uses lazy initialization with a Proxy to ensure the Prisma client is created at request time (when Cloudflare bindings are available):
+### Database Access
+`src/db.server.ts` uses `getDb()` with lazy initialization. It detects D1 bindings at request time:
 
 ```typescript
 // Cloudflare Pages: globalThis.cloudflare.env.DB
 // Direct Workers: globalThis.DB
+// Nitro pattern: globalThis.__env__.DB
 ```
 
-### Regenerating Prisma Client
-```bash
-rm -rf src/generated/prisma && npx prisma generate
-```
+If no D1 binding is found, it throws an error (local dev should use `pnpm dev` which provides its own environment).
 
 ## Code Style
 
@@ -241,21 +246,46 @@ Brand data is centralized in `src/data/brands.ts`:
 ### Brand List
 Brands are defined in `src/data/all-brands.ts` for admin dropdown and `src/data/brands.ts` for navigation.
 
-## Local Development Database
-
-The `src/db.server.ts` supports both:
-- **Production**: Cloudflare D1 via bindings
-- **Development**: Local SQLite via `@libsql/client`
-
-```typescript
-// Falls back to local SQLite when D1 binding not available
-import { createClient } from "@libsql/client";
-const client = createClient({ url: "file:./prisma/dev.db" });
-```
-
 ## Image URL Resolution
 
 The `getImageUrl()` helper in `src/lib/utils.ts`:
 - Detects UUID format images (locally uploaded)
 - Returns `/uploads/{key}` for local dev
 - Returns R2 public URL or API proxy for production
+
+## Nitro Configuration (Critical)
+
+The `nitro.config.ts` must use these settings for Cloudflare Pages deployment:
+
+```typescript
+export default defineNitroConfig({
+  preset: "cloudflare-pages",
+  rollupConfig: {
+    output: {
+      inlineDynamicImports: true,
+    },
+  },
+});
+```
+
+### Why these settings matter
+- **`preset: "cloudflare-pages"`**: Must match the deployment target. Using `cloudflare-module` causes the `__name is not defined` error in the browser because the SSR streaming output format differs.
+- **`inlineDynamicImports: true`**: Without this, Nitro generates code-split chunks that reference `../../index.js` with broken relative paths, causing `Could not resolve` errors at runtime.
+
+### `__name` Polyfill
+The `__root.tsx` shell includes an inline `<script>` that defines esbuild's `__name` helper before any SSR-streamed scripts execute. This is required because Nitro's server bundle uses esbuild's `keepNames` transform, and the dehydrated data stream contains `__name()` calls that run in the browser context where this helper doesn't exist.
+
+```tsx
+<script dangerouslySetInnerHTML={{
+  __html: `var __name=(fn,n)=>(Object.defineProperty(fn,"name",{value:n,configurable:true}),fn);`,
+}} />
+```
+
+Do NOT remove this polyfill - it will cause a blank page on Cloudflare deployments.
+
+## SSR on Cloudflare
+
+- SSR prefetching is skipped on Cloudflare because the worker cannot make HTTP requests to itself during SSR
+- The `isCloudflare()` helper in `src/integrations/tanstack-query/root-provider.tsx` detects the Cloudflare environment
+- Route loaders should check `isCloudflare()` and skip `prefetchQuery` calls when true
+- Data is fetched client-side after hydration instead

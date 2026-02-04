@@ -55,6 +55,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en">
 			<head>
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `var __name=(fn,n)=>(Object.defineProperty(fn,"name",{value:n,configurable:true}),fn);`,
+					}}
+				/>
 				<HeadContent />
 			</head>
 			<body>

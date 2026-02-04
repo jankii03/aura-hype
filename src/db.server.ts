@@ -12,21 +12,21 @@ const getD1 = () => {
 	if (typeof (globalThis as any).DB !== "undefined") {
 		return (globalThis as any).DB;
 	}
+	// Try platform context (Nitro pattern)
+	const platform = (globalThis as any).__env__;
+	if (platform?.DB) {
+		return platform.DB;
+	}
 	return undefined;
 };
 
-// Cached database instance
-let d1Db: ReturnType<typeof drizzleD1> | null = null;
-
 // Lazy initialization to ensure bindings are available at request time
+// Don't cache the db instance since the D1 binding might change per request
 export const getDb = () => {
 	const d1 = getD1();
 	if (d1) {
-		// Production: Use D1
-		if (!d1Db) {
-			d1Db = drizzleD1(d1, { schema });
-		}
-		return d1Db;
+		// Production: Use D1 - create fresh instance each time
+		return drizzleD1(d1, { schema });
 	}
 
 	// Development fallback - this will only work when NOT on Cloudflare
