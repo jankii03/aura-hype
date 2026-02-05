@@ -15,18 +15,24 @@ import { Route as ProductProductIdRouteImport } from './routes/product.$productI
 import { Route as ApiR2UploadRouteImport } from './routes/api.r2-upload'
 import { Route as ApiR2ListImagesRouteImport } from './routes/api.r2-list-images'
 import { Route as ApiR2ImageRouteImport } from './routes/api.r2-image'
+import { Route as BrandsVersaceIndexRouteImport } from './routes/brands/versace/index'
+import { Route as BrandsToryBurchIndexRouteImport } from './routes/brands/tory-burch/index'
 import { Route as BrandsPradaIndexRouteImport } from './routes/brands/prada/index'
 import { Route as BrandsNikeIndexRouteImport } from './routes/brands/nike/index'
 import { Route as BrandsNewBalanceIndexRouteImport } from './routes/brands/new-balance/index'
 import { Route as BrandsLouisVuittonIndexRouteImport } from './routes/brands/louis-vuitton/index'
 import { Route as BrandsJordanIndexRouteImport } from './routes/brands/jordan/index'
+import { Route as BrandsHermesParisIndexRouteImport } from './routes/brands/hermes-paris/index'
 import { Route as BrandsGucciIndexRouteImport } from './routes/brands/gucci/index'
+import { Route as BrandsGivenchyIndexRouteImport } from './routes/brands/givenchy/index'
+import { Route as BrandsFendiIndexRouteImport } from './routes/brands/fendi/index'
 import { Route as BrandsDolceGabanaIndexRouteImport } from './routes/brands/dolce-gabana/index'
 import { Route as BrandsDiorIndexRouteImport } from './routes/brands/dior/index'
 import { Route as BrandsBapeIndexRouteImport } from './routes/brands/bape/index'
 import { Route as BrandsBalenciagaIndexRouteImport } from './routes/brands/balenciaga/index'
 import { Route as BrandsAsicsIndexRouteImport } from './routes/brands/asics/index'
 import { Route as BrandsAmiriIndexRouteImport } from './routes/brands/amiri/index'
+import { Route as BrandsAlexanderMcqueenIndexRouteImport } from './routes/brands/alexander-mcqueen/index'
 import { Route as AdminProductsIndexRouteImport } from './routes/admin/products/index'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 import { Route as ApiR2ImageSplatRouteImport } from './routes/api.r2-image.$'
@@ -63,6 +69,16 @@ const ApiR2ImageRoute = ApiR2ImageRouteImport.update({
   path: '/api/r2-image',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrandsVersaceIndexRoute = BrandsVersaceIndexRouteImport.update({
+  id: '/brands/versace/',
+  path: '/brands/versace/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrandsToryBurchIndexRoute = BrandsToryBurchIndexRouteImport.update({
+  id: '/brands/tory-burch/',
+  path: '/brands/tory-burch/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BrandsPradaIndexRoute = BrandsPradaIndexRouteImport.update({
   id: '/brands/prada/',
   path: '/brands/prada/',
@@ -88,9 +104,24 @@ const BrandsJordanIndexRoute = BrandsJordanIndexRouteImport.update({
   path: '/brands/jordan/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrandsHermesParisIndexRoute = BrandsHermesParisIndexRouteImport.update({
+  id: '/brands/hermes-paris/',
+  path: '/brands/hermes-paris/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BrandsGucciIndexRoute = BrandsGucciIndexRouteImport.update({
   id: '/brands/gucci/',
   path: '/brands/gucci/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrandsGivenchyIndexRoute = BrandsGivenchyIndexRouteImport.update({
+  id: '/brands/givenchy/',
+  path: '/brands/givenchy/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrandsFendiIndexRoute = BrandsFendiIndexRouteImport.update({
+  id: '/brands/fendi/',
+  path: '/brands/fendi/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BrandsDolceGabanaIndexRoute = BrandsDolceGabanaIndexRouteImport.update({
@@ -123,6 +154,12 @@ const BrandsAmiriIndexRoute = BrandsAmiriIndexRouteImport.update({
   path: '/brands/amiri/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrandsAlexanderMcqueenIndexRoute =
+  BrandsAlexanderMcqueenIndexRouteImport.update({
+    id: '/brands/alexander-mcqueen/',
+    path: '/brands/alexander-mcqueen/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminProductsIndexRoute = AdminProductsIndexRouteImport.update({
   id: '/admin/products/',
   path: '/admin/products/',
@@ -161,18 +198,24 @@ export interface FileRoutesByFullPath {
   '/api/r2-image/$': typeof ApiR2ImageSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/admin/products': typeof AdminProductsIndexRoute
+  '/brands/alexander-mcqueen': typeof BrandsAlexanderMcqueenIndexRoute
   '/brands/amiri': typeof BrandsAmiriIndexRoute
   '/brands/asics': typeof BrandsAsicsIndexRoute
   '/brands/balenciaga': typeof BrandsBalenciagaIndexRoute
   '/brands/bape': typeof BrandsBapeIndexRoute
   '/brands/dior': typeof BrandsDiorIndexRoute
   '/brands/dolce-gabana': typeof BrandsDolceGabanaIndexRoute
+  '/brands/fendi': typeof BrandsFendiIndexRoute
+  '/brands/givenchy': typeof BrandsGivenchyIndexRoute
   '/brands/gucci': typeof BrandsGucciIndexRoute
+  '/brands/hermes-paris': typeof BrandsHermesParisIndexRoute
   '/brands/jordan': typeof BrandsJordanIndexRoute
   '/brands/louis-vuitton': typeof BrandsLouisVuittonIndexRoute
   '/brands/new-balance': typeof BrandsNewBalanceIndexRoute
   '/brands/nike': typeof BrandsNikeIndexRoute
   '/brands/prada': typeof BrandsPradaIndexRoute
+  '/brands/tory-burch': typeof BrandsToryBurchIndexRoute
+  '/brands/versace': typeof BrandsVersaceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -186,18 +229,24 @@ export interface FileRoutesByTo {
   '/api/r2-image/$': typeof ApiR2ImageSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/admin/products': typeof AdminProductsIndexRoute
+  '/brands/alexander-mcqueen': typeof BrandsAlexanderMcqueenIndexRoute
   '/brands/amiri': typeof BrandsAmiriIndexRoute
   '/brands/asics': typeof BrandsAsicsIndexRoute
   '/brands/balenciaga': typeof BrandsBalenciagaIndexRoute
   '/brands/bape': typeof BrandsBapeIndexRoute
   '/brands/dior': typeof BrandsDiorIndexRoute
   '/brands/dolce-gabana': typeof BrandsDolceGabanaIndexRoute
+  '/brands/fendi': typeof BrandsFendiIndexRoute
+  '/brands/givenchy': typeof BrandsGivenchyIndexRoute
   '/brands/gucci': typeof BrandsGucciIndexRoute
+  '/brands/hermes-paris': typeof BrandsHermesParisIndexRoute
   '/brands/jordan': typeof BrandsJordanIndexRoute
   '/brands/louis-vuitton': typeof BrandsLouisVuittonIndexRoute
   '/brands/new-balance': typeof BrandsNewBalanceIndexRoute
   '/brands/nike': typeof BrandsNikeIndexRoute
   '/brands/prada': typeof BrandsPradaIndexRoute
+  '/brands/tory-burch': typeof BrandsToryBurchIndexRoute
+  '/brands/versace': typeof BrandsVersaceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -212,18 +261,24 @@ export interface FileRoutesById {
   '/api/r2-image/$': typeof ApiR2ImageSplatRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/admin/products/': typeof AdminProductsIndexRoute
+  '/brands/alexander-mcqueen/': typeof BrandsAlexanderMcqueenIndexRoute
   '/brands/amiri/': typeof BrandsAmiriIndexRoute
   '/brands/asics/': typeof BrandsAsicsIndexRoute
   '/brands/balenciaga/': typeof BrandsBalenciagaIndexRoute
   '/brands/bape/': typeof BrandsBapeIndexRoute
   '/brands/dior/': typeof BrandsDiorIndexRoute
   '/brands/dolce-gabana/': typeof BrandsDolceGabanaIndexRoute
+  '/brands/fendi/': typeof BrandsFendiIndexRoute
+  '/brands/givenchy/': typeof BrandsGivenchyIndexRoute
   '/brands/gucci/': typeof BrandsGucciIndexRoute
+  '/brands/hermes-paris/': typeof BrandsHermesParisIndexRoute
   '/brands/jordan/': typeof BrandsJordanIndexRoute
   '/brands/louis-vuitton/': typeof BrandsLouisVuittonIndexRoute
   '/brands/new-balance/': typeof BrandsNewBalanceIndexRoute
   '/brands/nike/': typeof BrandsNikeIndexRoute
   '/brands/prada/': typeof BrandsPradaIndexRoute
+  '/brands/tory-burch/': typeof BrandsToryBurchIndexRoute
+  '/brands/versace/': typeof BrandsVersaceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -239,18 +294,24 @@ export interface FileRouteTypes {
     | '/api/r2-image/$'
     | '/api/trpc/$'
     | '/admin/products'
+    | '/brands/alexander-mcqueen'
     | '/brands/amiri'
     | '/brands/asics'
     | '/brands/balenciaga'
     | '/brands/bape'
     | '/brands/dior'
     | '/brands/dolce-gabana'
+    | '/brands/fendi'
+    | '/brands/givenchy'
     | '/brands/gucci'
+    | '/brands/hermes-paris'
     | '/brands/jordan'
     | '/brands/louis-vuitton'
     | '/brands/new-balance'
     | '/brands/nike'
     | '/brands/prada'
+    | '/brands/tory-burch'
+    | '/brands/versace'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -264,18 +325,24 @@ export interface FileRouteTypes {
     | '/api/r2-image/$'
     | '/api/trpc/$'
     | '/admin/products'
+    | '/brands/alexander-mcqueen'
     | '/brands/amiri'
     | '/brands/asics'
     | '/brands/balenciaga'
     | '/brands/bape'
     | '/brands/dior'
     | '/brands/dolce-gabana'
+    | '/brands/fendi'
+    | '/brands/givenchy'
     | '/brands/gucci'
+    | '/brands/hermes-paris'
     | '/brands/jordan'
     | '/brands/louis-vuitton'
     | '/brands/new-balance'
     | '/brands/nike'
     | '/brands/prada'
+    | '/brands/tory-burch'
+    | '/brands/versace'
   id:
     | '__root__'
     | '/'
@@ -289,18 +356,24 @@ export interface FileRouteTypes {
     | '/api/r2-image/$'
     | '/api/trpc/$'
     | '/admin/products/'
+    | '/brands/alexander-mcqueen/'
     | '/brands/amiri/'
     | '/brands/asics/'
     | '/brands/balenciaga/'
     | '/brands/bape/'
     | '/brands/dior/'
     | '/brands/dolce-gabana/'
+    | '/brands/fendi/'
+    | '/brands/givenchy/'
     | '/brands/gucci/'
+    | '/brands/hermes-paris/'
     | '/brands/jordan/'
     | '/brands/louis-vuitton/'
     | '/brands/new-balance/'
     | '/brands/nike/'
     | '/brands/prada/'
+    | '/brands/tory-burch/'
+    | '/brands/versace/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -314,18 +387,24 @@ export interface RootRouteChildren {
   AdminProductsNewRoute: typeof AdminProductsNewRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
   AdminProductsIndexRoute: typeof AdminProductsIndexRoute
+  BrandsAlexanderMcqueenIndexRoute: typeof BrandsAlexanderMcqueenIndexRoute
   BrandsAmiriIndexRoute: typeof BrandsAmiriIndexRoute
   BrandsAsicsIndexRoute: typeof BrandsAsicsIndexRoute
   BrandsBalenciagaIndexRoute: typeof BrandsBalenciagaIndexRoute
   BrandsBapeIndexRoute: typeof BrandsBapeIndexRoute
   BrandsDiorIndexRoute: typeof BrandsDiorIndexRoute
   BrandsDolceGabanaIndexRoute: typeof BrandsDolceGabanaIndexRoute
+  BrandsFendiIndexRoute: typeof BrandsFendiIndexRoute
+  BrandsGivenchyIndexRoute: typeof BrandsGivenchyIndexRoute
   BrandsGucciIndexRoute: typeof BrandsGucciIndexRoute
+  BrandsHermesParisIndexRoute: typeof BrandsHermesParisIndexRoute
   BrandsJordanIndexRoute: typeof BrandsJordanIndexRoute
   BrandsLouisVuittonIndexRoute: typeof BrandsLouisVuittonIndexRoute
   BrandsNewBalanceIndexRoute: typeof BrandsNewBalanceIndexRoute
   BrandsNikeIndexRoute: typeof BrandsNikeIndexRoute
   BrandsPradaIndexRoute: typeof BrandsPradaIndexRoute
+  BrandsToryBurchIndexRoute: typeof BrandsToryBurchIndexRoute
+  BrandsVersaceIndexRoute: typeof BrandsVersaceIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -372,6 +451,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiR2ImageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/brands/versace/': {
+      id: '/brands/versace/'
+      path: '/brands/versace'
+      fullPath: '/brands/versace'
+      preLoaderRoute: typeof BrandsVersaceIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brands/tory-burch/': {
+      id: '/brands/tory-burch/'
+      path: '/brands/tory-burch'
+      fullPath: '/brands/tory-burch'
+      preLoaderRoute: typeof BrandsToryBurchIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/brands/prada/': {
       id: '/brands/prada/'
       path: '/brands/prada'
@@ -407,11 +500,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrandsJordanIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/brands/hermes-paris/': {
+      id: '/brands/hermes-paris/'
+      path: '/brands/hermes-paris'
+      fullPath: '/brands/hermes-paris'
+      preLoaderRoute: typeof BrandsHermesParisIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/brands/gucci/': {
       id: '/brands/gucci/'
       path: '/brands/gucci'
       fullPath: '/brands/gucci'
       preLoaderRoute: typeof BrandsGucciIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brands/givenchy/': {
+      id: '/brands/givenchy/'
+      path: '/brands/givenchy'
+      fullPath: '/brands/givenchy'
+      preLoaderRoute: typeof BrandsGivenchyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brands/fendi/': {
+      id: '/brands/fendi/'
+      path: '/brands/fendi'
+      fullPath: '/brands/fendi'
+      preLoaderRoute: typeof BrandsFendiIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/brands/dolce-gabana/': {
@@ -454,6 +568,13 @@ declare module '@tanstack/react-router' {
       path: '/brands/amiri'
       fullPath: '/brands/amiri'
       preLoaderRoute: typeof BrandsAmiriIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brands/alexander-mcqueen/': {
+      id: '/brands/alexander-mcqueen/'
+      path: '/brands/alexander-mcqueen'
+      fullPath: '/brands/alexander-mcqueen'
+      preLoaderRoute: typeof BrandsAlexanderMcqueenIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/products/': {
@@ -517,18 +638,24 @@ const rootRouteChildren: RootRouteChildren = {
   AdminProductsNewRoute: AdminProductsNewRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
   AdminProductsIndexRoute: AdminProductsIndexRoute,
+  BrandsAlexanderMcqueenIndexRoute: BrandsAlexanderMcqueenIndexRoute,
   BrandsAmiriIndexRoute: BrandsAmiriIndexRoute,
   BrandsAsicsIndexRoute: BrandsAsicsIndexRoute,
   BrandsBalenciagaIndexRoute: BrandsBalenciagaIndexRoute,
   BrandsBapeIndexRoute: BrandsBapeIndexRoute,
   BrandsDiorIndexRoute: BrandsDiorIndexRoute,
   BrandsDolceGabanaIndexRoute: BrandsDolceGabanaIndexRoute,
+  BrandsFendiIndexRoute: BrandsFendiIndexRoute,
+  BrandsGivenchyIndexRoute: BrandsGivenchyIndexRoute,
   BrandsGucciIndexRoute: BrandsGucciIndexRoute,
+  BrandsHermesParisIndexRoute: BrandsHermesParisIndexRoute,
   BrandsJordanIndexRoute: BrandsJordanIndexRoute,
   BrandsLouisVuittonIndexRoute: BrandsLouisVuittonIndexRoute,
   BrandsNewBalanceIndexRoute: BrandsNewBalanceIndexRoute,
   BrandsNikeIndexRoute: BrandsNikeIndexRoute,
   BrandsPradaIndexRoute: BrandsPradaIndexRoute,
+  BrandsToryBurchIndexRoute: BrandsToryBurchIndexRoute,
+  BrandsVersaceIndexRoute: BrandsVersaceIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
