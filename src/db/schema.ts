@@ -16,6 +16,7 @@ export const products = sqliteTable("Product", {
 	image: text("image").notNull(),
 	brand: text("brand").notNull(),
 	category: text("category"),
+	gender: text("gender"), // "Hombre", "Mujer", or null for unisex
 	description: text("description"),
 	createdAt: integer("createdAt", { mode: "timestamp" }).default(
 		new Date()

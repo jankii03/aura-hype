@@ -21,6 +21,7 @@ export interface ProductFormData {
 	image: string;
 	brand: string;
 	category: string;
+	gender: string;
 	description: string;
 	extraImages: string[];
 }
@@ -33,6 +34,7 @@ interface ProductFormProps {
 }
 
 const categories = ["Sneakers", "Boots", "Sandals", "Loafers", "Athletic"];
+const genders = ["Hombre", "Mujer"];
 
 export function ProductForm({
 	initialData,
@@ -47,6 +49,7 @@ export function ProductForm({
 			image: "",
 			brand: "",
 			category: "",
+			gender: "",
 			description: "",
 			extraImages: [],
 		},
@@ -208,6 +211,25 @@ export function ProductForm({
 									{categories.map((category) => (
 										<SelectItem key={category} value={category}>
 											{category}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div className="space-y-2">
+							<Label htmlFor="gender">Gender</Label>
+							<Select
+								value={formData.gender}
+								onValueChange={(value) => handleSelectChange("gender", value)}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="Select gender" />
+								</SelectTrigger>
+								<SelectContent>
+									{genders.map((gender) => (
+										<SelectItem key={gender} value={gender}>
+											{gender}
 										</SelectItem>
 									))}
 								</SelectContent>

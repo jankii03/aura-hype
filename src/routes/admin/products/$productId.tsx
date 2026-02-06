@@ -49,6 +49,7 @@ function EditProductPage() {
 			image: data.image,
 			brand: data.brand,
 			category: data.category || undefined,
+			gender: data.gender || undefined,
 			description: data.description || undefined,
 			extraImages: data.extraImages.length > 0 ? data.extraImages : undefined,
 		});
@@ -83,6 +84,7 @@ function EditProductPage() {
 		image: product.image,
 		brand: product.brand,
 		category: product.category || "",
+		gender: product.gender || "",
 		description: product.description || "",
 		extraImages: product.extraImages?.map((img) => img.image) || [],
 	};

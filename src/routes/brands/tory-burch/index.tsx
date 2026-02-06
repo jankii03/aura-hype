@@ -31,9 +31,12 @@ function ToryBurchPage() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 	const [lastScrollY, setLastScrollY] = useState(0);
+	const [genderFilter, setGenderFilter] = useState<string | null>(null);
 	const trpc = useTRPC();
 
-	const { data } = useQuery(trpc.products.list.queryOptions({ brand: "Tory Burch" }));
+	const { data } = useQuery(
+		trpc.products.list.queryOptions({ brand: "Tory Burch", ...(genderFilter && { gender: genderFilter }) })
+	);
 	const products = (data ?? []) as Product[];
 
 	useEffect(() => {
@@ -95,6 +98,44 @@ function ToryBurchPage() {
 
 			<main className="relative z-10 container mx-auto px-6 py-12 pt-28">
 				<h1 className="text-4xl md:text-6xl font-bold mb-8 uppercase tracking-wider">Tory Burch</h1>
+
+				{/* Gender Filter */}
+				<div className="flex gap-4 mb-8">
+					<button
+						onClick={() => setGenderFilter(null)}
+						className={`px-4 py-2 rounded-full font-semibold uppercase text-sm tracking-wide transition-colors ${
+							genderFilter === null
+								? "bg-white text-black"
+								: "bg-white/20 text-white hover:bg-white/30"
+						}`}
+						type="button"
+					>
+						Todos
+					</button>
+					<button
+						onClick={() => setGenderFilter("Hombre")}
+						className={`px-4 py-2 rounded-full font-semibold uppercase text-sm tracking-wide transition-colors ${
+							genderFilter === "Hombre"
+								? "bg-white text-black"
+								: "bg-white/20 text-white hover:bg-white/30"
+						}`}
+						type="button"
+					>
+						Hombre
+					</button>
+					<button
+						onClick={() => setGenderFilter("Mujer")}
+						className={`px-4 py-2 rounded-full font-semibold uppercase text-sm tracking-wide transition-colors ${
+							genderFilter === "Mujer"
+								? "bg-white text-black"
+								: "bg-white/20 text-white hover:bg-white/30"
+						}`}
+						type="button"
+					>
+						Mujer
+					</button>
+				</div>
+
 				{products.length === 0 ? (
 					<p className="text-gray-400 text-center py-12">No products available for this brand yet.</p>
 				) : (

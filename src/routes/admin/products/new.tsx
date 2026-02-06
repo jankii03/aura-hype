@@ -33,6 +33,7 @@ function NewProductPage() {
 			image: data.image,
 			brand: data.brand,
 			category: data.category || undefined,
+			gender: data.gender || undefined,
 			description: data.description || undefined,
 			extraImages: data.extraImages.length > 0 ? data.extraImages : undefined,
 		});

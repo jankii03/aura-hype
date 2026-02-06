@@ -14,6 +14,7 @@ interface Product {
 	image: string;
 	brand: string;
 	category: string | null;
+	gender: string | null;
 	description: string | null;
 	createdAt: Date | null;
 	extraImages: { id: number; image: string; productId: number }[];
@@ -34,10 +35,13 @@ export const Route = createFileRoute("/")({
 
 function App() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [genderFilter, setGenderFilter] = useState<string | null>(null);
 	const carouselRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 	const trpc = useTRPC();
 
-	const productsQuery = useQuery(trpc.products.list.queryOptions());
+	const productsQuery = useQuery(
+		trpc.products.list.queryOptions(genderFilter ? { gender: genderFilter } : undefined)
+	);
 	const products = (productsQuery.data ?? []) as Product[];
 
 	// Create brand name to path mapping
@@ -187,6 +191,42 @@ function App() {
 				{/* Products Section */}
 				<section className="bg-gradient-to-b from-white/95 to-gray-100/95 py-12">
 					<div className="max-w-7xl mx-auto px-6">
+						{/* Gender Filter */}
+						<div className="flex justify-center gap-4 mb-12">
+							<button
+								onClick={() => setGenderFilter(null)}
+								className={`px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-colors ${
+									genderFilter === null
+										? "bg-black text-white"
+										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
+								}`}
+								type="button"
+							>
+								Todos
+							</button>
+							<button
+								onClick={() => setGenderFilter("Hombre")}
+								className={`px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-colors ${
+									genderFilter === "Hombre"
+										? "bg-black text-white"
+										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
+								}`}
+								type="button"
+							>
+								Hombre
+							</button>
+							<button
+								onClick={() => setGenderFilter("Mujer")}
+								className={`px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-colors ${
+									genderFilter === "Mujer"
+										? "bg-black text-white"
+										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
+								}`}
+								type="button"
+							>
+								Mujer
+							</button>
+						</div>
 						{brands.map((brand, brandIndex) => (
 							<div key={brand.name} className={brandIndex > 0 ? "mt-16" : ""}>
 								<div className="flex items-center justify-between mb-8">

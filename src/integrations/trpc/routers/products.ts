@@ -1,6 +1,6 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod";
-import { eq, like, desc } from "drizzle-orm";
+import { eq, like, desc, and } from "drizzle-orm";
 import { getDb, schema } from "@/db.server";
 import { publicProcedure } from "../init";
 
@@ -10,6 +10,7 @@ export const productsRouter = {
 			z
 				.object({
 					brand: z.string().optional(),
+					gender: z.string().optional(),
 					search: z.string().optional(),
 				})
 				.optional(),
@@ -17,17 +18,25 @@ export const productsRouter = {
 		.query(async ({ input }) => {
 			const db = getDb();
 
+			// Build where conditions
+			const conditions = [];
+			if (input?.brand) {
+				conditions.push(eq(schema.products.brand, input.brand));
+			}
+			if (input?.gender) {
+				conditions.push(eq(schema.products.gender, input.gender));
+			}
+			if (input?.search) {
+				conditions.push(like(schema.products.name, `%${input.search}%`));
+			}
+
 			// Build query with filters
 			let query = db.query.products.findMany({
 				with: {
 					extraImages: true,
 				},
 				orderBy: [desc(schema.products.createdAt)],
-				where: input?.brand
-					? eq(schema.products.brand, input.brand)
-					: input?.search
-						? like(schema.products.name, `%${input.search}%`)
-						: undefined,
+				where: conditions.length > 0 ? and(...conditions) : undefined,
 			});
 
 			return query;
@@ -56,6 +65,7 @@ export const productsRouter = {
 				image: z.string().min(1),
 				brand: z.string().min(1),
 				category: z.string().optional(),
+				gender: z.string().optional(),
 				description: z.string().optional(),
 				extraImages: z.array(z.string()).optional(),
 			}),
@@ -97,6 +107,7 @@ export const productsRouter = {
 				image: z.string().min(1),
 				brand: z.string().min(1),
 				category: z.string().optional(),
+				gender: z.string().optional(),
 				description: z.string().optional(),
 				extraImages: z.array(z.string()).optional(),
 			}),
