@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { luxuryBrands, sneakerBrands } from "@/data/brands";
+import { useSearch } from "@/components/SearchModal";
 import { useTRPC } from "@/integrations/trpc/react";
 import { isCloudflare } from "@/integrations/tanstack-query/root-provider";
 import { getImageUrl } from "@/lib/utils";
@@ -28,6 +29,7 @@ function ProductDetailPage() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 	const [lastScrollY, setLastScrollY] = useState(0);
+	const { openSearch } = useSearch();
 
 	const { data: product, isLoading } = useQuery(
 		trpc.products.byId.queryOptions({ id: parseInt(productId, 10) }),
@@ -131,7 +133,7 @@ function ProductDetailPage() {
 			<header className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-start gap-6 px-6 py-6 bg-black/30 backdrop-blur-sm transition-transform duration-300 ${isHeaderVisible ? "translate-y-0" : "-translate-y-full"}`}>
 				<button onClick={() => setIsMenuOpen(true)} className="hover:text-blue-400 transition-colors" type="button"><Menu className="w-6 h-6" /></button>
 				<Link to="/" className="hover:text-blue-400 transition-colors"><ChevronLeft className="w-6 h-6" /></Link>
-				<button className="hover:text-blue-400 transition-colors" type="button"><Search className="w-6 h-6" /></button>
+				<button onClick={openSearch} className="hover:text-blue-400 transition-colors" type="button"><Search className="w-6 h-6" /></button>
 			</header>
 
 			{/* Product Detail */}
