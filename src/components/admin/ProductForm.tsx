@@ -1,4 +1,4 @@
-import { Loader2, Upload, X } from "lucide-react";
+import { Check, Loader2, Upload, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { brandNames } from "@/data/all-brands";
-import { getImageUrl } from "@/lib/utils";
+import { productTags } from "@/data/tags";
+import { getImageUrl, cn } from "@/lib/utils";
 
 export interface ProductFormData {
 	name: string;
@@ -23,6 +24,7 @@ export interface ProductFormData {
 	category: string;
 	gender: string;
 	description: string;
+	tags: string[];
 	extraImages: string[];
 }
 
@@ -51,6 +53,7 @@ export function ProductForm({
 			category: "",
 			gender: "",
 			description: "",
+			tags: [],
 			extraImages: [],
 		},
 	);
@@ -67,6 +70,15 @@ export function ProductForm({
 
 	const handleSelectChange = (name: string, value: string) => {
 		setFormData((prev) => ({ ...prev, [name]: value }));
+	};
+
+	const toggleTag = (tagValue: string) => {
+		setFormData((prev) => ({
+			...prev,
+			tags: prev.tags.includes(tagValue)
+				? prev.tags.filter((t) => t !== tagValue)
+				: [...prev.tags, tagValue],
+		}));
 	};
 
 	const uploadImage = async (file: File): Promise<string | null> => {
@@ -235,6 +247,36 @@ export function ProductForm({
 								</SelectContent>
 							</Select>
 						</div>
+					</div>
+
+					<div className="space-y-2">
+						<Label>Tags</Label>
+						<div className="flex flex-wrap gap-2">
+							{productTags.map((tag) => {
+								const isSelected = formData.tags.includes(tag.value);
+								return (
+									<button
+										key={tag.value}
+										type="button"
+										onClick={() => toggleTag(tag.value)}
+										className={cn(
+											"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border",
+											isSelected
+												? "bg-primary text-primary-foreground border-primary"
+												: "bg-muted text-muted-foreground border-border hover:bg-muted/80"
+										)}
+									>
+										{isSelected && <Check className="h-3 w-3" />}
+										{tag.label}
+									</button>
+								);
+							})}
+						</div>
+						{formData.tags.length > 0 && (
+							<p className="text-sm text-muted-foreground">
+								Selected: {formData.tags.length} tag(s)
+							</p>
+						)}
 					</div>
 
 					<div className="space-y-2">

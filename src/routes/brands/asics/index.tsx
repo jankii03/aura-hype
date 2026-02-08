@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { luxuryBrands, sneakerBrands } from "@/data/brands";
+import { luxuryBrands, sneakerBrands, estiloUrbanoBrands, gorrasBrands, accesoriosBrands } from "@/data/brands";
+import { useSearch } from "@/components/SearchModal";
 import { useTRPC } from "@/integrations/trpc/react";
 import { isCloudflare } from "@/integrations/tanstack-query/root-provider";
 import { getImageUrl } from "@/lib/utils";
@@ -33,6 +34,7 @@ function AsicsPage() {
 	const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 	const [lastScrollY, setLastScrollY] = useState(0);
 	const [genderFilter, setGenderFilter] = useState<string | null>(null);
+	const { openSearch } = useSearch();
 	const trpc = useTRPC();
 
 	const { data } = useQuery(
@@ -64,7 +66,7 @@ function AsicsPage() {
 						</button>
 						<div className="p-6 pt-16">
 							<div className="mb-8">
-								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">Sneakers</h2>
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">Zapatos</h2>
 								<ul className="space-y-3">
 									{sneakerBrands.map((brand) => (
 										<li key={brand.path}>
@@ -74,9 +76,39 @@ function AsicsPage() {
 								</ul>
 							</div>
 							<div className="mb-8">
-								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">Luxury Brands</h2>
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">Marcas de Lujo</h2>
 								<ul className="space-y-3">
 									{luxuryBrands.map((brand) => (
+										<li key={brand.path}>
+											<Link to={brand.path} className="block hover:text-blue-600 transition-colors uppercase text-sm" onClick={() => setIsMenuOpen(false)}>{brand.name}</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+							<div className="mb-8">
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">Estilo Urbano</h2>
+								<ul className="space-y-3">
+									{estiloUrbanoBrands.map((brand) => (
+										<li key={brand.path}>
+											<Link to={brand.path} className="block hover:text-blue-600 transition-colors uppercase text-sm" onClick={() => setIsMenuOpen(false)}>{brand.name}</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+							<div className="mb-8">
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">Gorras</h2>
+								<ul className="space-y-3">
+									{gorrasBrands.map((brand) => (
+										<li key={brand.path}>
+											<Link to={brand.path} className="block hover:text-blue-600 transition-colors uppercase text-sm" onClick={() => setIsMenuOpen(false)}>{brand.name}</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+							<div className="mb-8">
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">Accesorios</h2>
+								<ul className="space-y-3">
+									{accesoriosBrands.map((brand) => (
 										<li key={brand.path}>
 											<Link to={brand.path} className="block hover:text-blue-600 transition-colors uppercase text-sm" onClick={() => setIsMenuOpen(false)}>{brand.name}</Link>
 										</li>
@@ -94,7 +126,7 @@ function AsicsPage() {
 			<header className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-start gap-6 px-6 py-6 bg-black/30 backdrop-blur-sm transition-transform duration-300 ${isHeaderVisible ? "translate-y-0" : "-translate-y-full"}`}>
 				<button onClick={() => setIsMenuOpen(true)} className="hover:text-blue-400 transition-colors" type="button"><Menu className="w-6 h-6" /></button>
 				<Link to="/" className="hover:text-blue-400 transition-colors"><ChevronLeft className="w-6 h-6" /></Link>
-				<button className="hover:text-blue-400 transition-colors" type="button"><Search className="w-6 h-6" /></button>
+				<button onClick={openSearch} className="hover:text-blue-400 transition-colors" type="button"><Search className="w-6 h-6" /></button>
 			</header>
 
 			<main className="relative z-10 container mx-auto px-6 py-12 pt-28">

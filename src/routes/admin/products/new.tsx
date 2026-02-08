@@ -35,6 +35,7 @@ function NewProductPage() {
 			category: data.category || undefined,
 			gender: data.gender || undefined,
 			description: data.description || undefined,
+			tags: data.tags.length > 0 ? data.tags : undefined,
 			extraImages: data.extraImages.length > 0 ? data.extraImages : undefined,
 		});
 	};

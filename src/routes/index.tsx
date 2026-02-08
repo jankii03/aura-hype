@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Menu, Search, X } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import { luxuryBrands, sneakerBrands } from "../data/brands";
+import { luxuryBrands, sneakerBrands, estiloUrbanoBrands, gorrasBrands, accesoriosBrands } from "../data/brands";
+import { useSearch } from "@/components/SearchModal";
 import { useTRPC } from "@/integrations/trpc/react";
 import { getImageUrl } from "@/lib/utils";
 import { isCloudflare } from "@/integrations/tanstack-query/root-provider";
@@ -35,20 +36,18 @@ export const Route = createFileRoute("/")({
 
 function App() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const [genderFilter, setGenderFilter] = useState<string | null>(null);
+	const { openSearch } = useSearch();
 	const carouselRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 	const trpc = useTRPC();
 
-	const productsQuery = useQuery(
-		trpc.products.list.queryOptions(genderFilter ? { gender: genderFilter } : undefined)
-	);
+	const productsQuery = useQuery(trpc.products.list.queryOptions());
 	const products = (productsQuery.data ?? []) as Product[];
 
 	// Create brand name to path mapping
-	const allBrands = [...sneakerBrands, ...luxuryBrands];
+	const allBrandsList = [...sneakerBrands, ...luxuryBrands, ...estiloUrbanoBrands, ...gorrasBrands, ...accesoriosBrands];
 	const brandPathMap = useMemo(() => {
 		const map = new Map<string, string>();
-		for (const brand of allBrands) {
+		for (const brand of allBrandsList) {
 			map.set(brand.name.toLowerCase(), brand.path);
 		}
 		return map;
@@ -123,7 +122,7 @@ function App() {
 						<div className="p-6 pt-16">
 							<div className="mb-8">
 								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">
-									Sneakers
+									Zapatos
 								</h2>
 								<ul className="space-y-3">
 									{sneakerBrands.map((brand) => (
@@ -142,10 +141,67 @@ function App() {
 
 							<div className="mb-8">
 								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">
-									Luxury Brands
+									Marcas de Lujo
 								</h2>
 								<ul className="space-y-3">
 									{luxuryBrands.map((brand) => (
+										<li key={brand.path}>
+											<Link
+												to={brand.path}
+												className="block hover:text-blue-600 uppercase text-sm"
+												onClick={() => setIsMenuOpen(false)}
+											>
+												{brand.name}
+											</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+
+							<div className="mb-8">
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">
+									Estilo Urbano
+								</h2>
+								<ul className="space-y-3">
+									{estiloUrbanoBrands.map((brand) => (
+										<li key={brand.path}>
+											<Link
+												to={brand.path}
+												className="block hover:text-blue-600 uppercase text-sm"
+												onClick={() => setIsMenuOpen(false)}
+											>
+												{brand.name}
+											</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+
+							<div className="mb-8">
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">
+									Gorras
+								</h2>
+								<ul className="space-y-3">
+									{gorrasBrands.map((brand) => (
+										<li key={brand.path}>
+											<Link
+												to={brand.path}
+												className="block hover:text-blue-600 uppercase text-sm"
+												onClick={() => setIsMenuOpen(false)}
+											>
+												{brand.name}
+											</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+
+							<div className="mb-8">
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">
+									Accesorios
+								</h2>
+								<ul className="space-y-3">
+									{accesoriosBrands.map((brand) => (
 										<li key={brand.path}>
 											<Link
 												to={brand.path}
@@ -174,7 +230,11 @@ function App() {
 					>
 						<Menu className="w-6 h-6" />
 					</button>
-					<button className="p-3 hover:text-blue-400" type="button">
+					<button
+						onClick={openSearch}
+						className="p-3 hover:text-blue-400"
+						type="button"
+					>
 						<Search className="w-6 h-6" />
 					</button>
 				</header>
@@ -191,42 +251,6 @@ function App() {
 				{/* Products Section */}
 				<section className="bg-gradient-to-b from-white/95 to-gray-100/95 py-12">
 					<div className="max-w-7xl mx-auto px-6">
-						{/* Gender Filter */}
-						<div className="flex justify-center gap-4 mb-12">
-							<button
-								onClick={() => setGenderFilter(null)}
-								className={`px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-colors ${
-									genderFilter === null
-										? "bg-black text-white"
-										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
-								}`}
-								type="button"
-							>
-								Todos
-							</button>
-							<button
-								onClick={() => setGenderFilter("Hombre")}
-								className={`px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-colors ${
-									genderFilter === "Hombre"
-										? "bg-black text-white"
-										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
-								}`}
-								type="button"
-							>
-								Hombre
-							</button>
-							<button
-								onClick={() => setGenderFilter("Mujer")}
-								className={`px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-colors ${
-									genderFilter === "Mujer"
-										? "bg-black text-white"
-										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
-								}`}
-								type="button"
-							>
-								Mujer
-							</button>
-						</div>
 						{brands.map((brand, brandIndex) => (
 							<div key={brand.name} className={brandIndex > 0 ? "mt-16" : ""}>
 								<div className="flex items-center justify-between mb-8">

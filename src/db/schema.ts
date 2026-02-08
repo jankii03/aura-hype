@@ -18,6 +18,7 @@ export const products = sqliteTable("Product", {
 	category: text("category"),
 	gender: text("gender"), // "Hombre", "Mujer", or null for unisex
 	description: text("description"),
+	tags: text("tags", { mode: "json" }).$type<string[]>(),
 	createdAt: integer("createdAt", { mode: "timestamp" }).default(
 		new Date()
 	),

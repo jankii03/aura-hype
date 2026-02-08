@@ -6,7 +6,9 @@ CREATE TABLE IF NOT EXISTS Product (
     image TEXT NOT NULL,
     brand TEXT NOT NULL,
     category TEXT,
+    gender TEXT,
     description TEXT,
+    tags TEXT,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

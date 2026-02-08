@@ -1,8 +1,12 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod";
-import { eq, like, desc, and } from "drizzle-orm";
+import { eq, like, desc, and, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db.server";
 import { publicProcedure } from "../init";
+import { tagValues } from "@/data/tags";
+
+// Zod schema for tags validation
+const tagsSchema = z.array(z.string()).optional();
 
 export const productsRouter = {
 	list: publicProcedure
@@ -12,6 +16,7 @@ export const productsRouter = {
 					brand: z.string().optional(),
 					gender: z.string().optional(),
 					search: z.string().optional(),
+					tag: z.string().optional(),
 				})
 				.optional(),
 		)
@@ -28,6 +33,12 @@ export const productsRouter = {
 			}
 			if (input?.search) {
 				conditions.push(like(schema.products.name, `%${input.search}%`));
+			}
+			if (input?.tag) {
+				// Filter by tag using SQLite JSON functions
+				conditions.push(
+					sql`EXISTS (SELECT 1 FROM json_each(${schema.products.tags}) WHERE value = ${input.tag})`
+				);
 			}
 
 			// Build query with filters
@@ -67,17 +78,21 @@ export const productsRouter = {
 				category: z.string().optional(),
 				gender: z.string().optional(),
 				description: z.string().optional(),
+				tags: tagsSchema,
 				extraImages: z.array(z.string()).optional(),
 			}),
 		)
 		.mutation(async ({ input }) => {
 			const db = getDb();
-			const { extraImages: extraImageUrls, ...productData } = input;
+			const { extraImages: extraImageUrls, tags, ...productData } = input;
 
-			// Insert product
+			// Insert product with tags as JSON
 			const result = await db
 				.insert(schema.products)
-				.values(productData)
+				.values({
+					...productData,
+					tags: tags && tags.length > 0 ? tags : null,
+				})
 				.returning();
 			const product = result[0];
 
@@ -109,17 +124,21 @@ export const productsRouter = {
 				category: z.string().optional(),
 				gender: z.string().optional(),
 				description: z.string().optional(),
+				tags: tagsSchema,
 				extraImages: z.array(z.string()).optional(),
 			}),
 		)
 		.mutation(async ({ input }) => {
 			const db = getDb();
-			const { id, extraImages: extraImageUrls, ...productData } = input;
+			const { id, extraImages: extraImageUrls, tags, ...productData } = input;
 
-			// Update product
+			// Update product with tags as JSON
 			await db
 				.update(schema.products)
-				.set(productData)
+				.set({
+					...productData,
+					tags: tags && tags.length > 0 ? tags : null,
+				})
 				.where(eq(schema.products.id, id));
 
 			// Delete existing extra images and insert new ones

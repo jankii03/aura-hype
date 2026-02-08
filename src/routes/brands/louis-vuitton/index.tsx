@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, Menu, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { luxuryBrands, sneakerBrands } from "@/data/brands";
+import { luxuryBrands, sneakerBrands, estiloUrbanoBrands, gorrasBrands, accesoriosBrands } from "@/data/brands";
+import { useSearch } from "@/components/SearchModal";
 import { useTRPC } from "@/integrations/trpc/react";
 import { getImageUrl } from "@/lib/utils";
 import { isCloudflare } from "@/integrations/tanstack-query/root-provider";
@@ -33,6 +34,7 @@ function LouisVuittonPage() {
 	const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 	const [lastScrollY, setLastScrollY] = useState(0);
 	const [genderFilter, setGenderFilter] = useState<string | null>(null);
+	const { openSearch } = useSearch();
 	const trpc = useTRPC();
 
 	const { data } = useQuery(
@@ -80,7 +82,7 @@ function LouisVuittonPage() {
 						<div className="p-6 pt-16">
 							<div className="mb-8">
 								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">
-									Sneakers
+									Zapatos
 								</h2>
 								<ul className="space-y-3">
 									{sneakerBrands.map((brand) => (
@@ -99,7 +101,7 @@ function LouisVuittonPage() {
 
 							<div className="mb-8">
 								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">
-									Luxury Brands
+									Marcas de Lujo
 								</h2>
 								<ul className="space-y-3">
 									{luxuryBrands.map((brand) => (
@@ -111,6 +113,36 @@ function LouisVuittonPage() {
 											>
 												{brand.name}
 											</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+							<div className="mb-8">
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">Estilo Urbano</h2>
+								<ul className="space-y-3">
+									{estiloUrbanoBrands.map((brand) => (
+										<li key={brand.path}>
+											<Link to={brand.path} className="block hover:text-blue-600 transition-colors uppercase text-sm" onClick={() => setIsMenuOpen(false)}>{brand.name}</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+							<div className="mb-8">
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">Gorras</h2>
+								<ul className="space-y-3">
+									{gorrasBrands.map((brand) => (
+										<li key={brand.path}>
+											<Link to={brand.path} className="block hover:text-blue-600 transition-colors uppercase text-sm" onClick={() => setIsMenuOpen(false)}>{brand.name}</Link>
+										</li>
+									))}
+								</ul>
+							</div>
+							<div className="mb-8">
+								<h2 className="text-xl font-bold mb-4 uppercase tracking-wide">Accesorios</h2>
+								<ul className="space-y-3">
+									{accesoriosBrands.map((brand) => (
+										<li key={brand.path}>
+											<Link to={brand.path} className="block hover:text-blue-600 transition-colors uppercase text-sm" onClick={() => setIsMenuOpen(false)}>{brand.name}</Link>
 										</li>
 									))}
 								</ul>
@@ -141,7 +173,7 @@ function LouisVuittonPage() {
 				<Link to="/" className="hover:text-blue-400 transition-colors">
 					<ChevronLeft className="w-6 h-6" />
 				</Link>
-				<button className="hover:text-blue-400 transition-colors" type="button">
+				<button onClick={openSearch} className="hover:text-blue-400 transition-colors" type="button">
 					<Search className="w-6 h-6" />
 				</button>
 			</header>

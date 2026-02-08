@@ -8,6 +8,7 @@ import {
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import { Provider } from "@/integrations/tanstack-query/root-provider";
+import { SearchProvider } from "@/components/SearchModal";
 import appCss from "../styles.css?url";
 
 interface MyRouterContext {
@@ -46,7 +47,9 @@ function RootComponent() {
 	const { queryClient } = Route.useRouteContext();
 	return (
 		<Provider queryClient={queryClient}>
-			<Outlet />
+			<SearchProvider>
+				<Outlet />
+			</SearchProvider>
 		</Provider>
 	);
 }
