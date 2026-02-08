@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Menu, Search, X } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { luxuryBrands, sneakerBrands, estiloUrbanoBrands, gorrasBrands, accesoriosBrands } from "../data/brands";
+import { useSearch } from "@/components/SearchModal";
 import { useTRPC } from "@/integrations/trpc/react";
 import { getImageUrl } from "@/lib/utils";
 import { isCloudflare } from "@/integrations/tanstack-query/root-provider";
@@ -36,12 +37,12 @@ export const Route = createFileRoute("/")({
 
 function App() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const [genderFilter, setGenderFilter] = useState<string | null>(null);
 	const carouselRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+	const { openSearch } = useSearch();
 	const trpc = useTRPC();
 
 	const productsQuery = useQuery(
-		trpc.products.list.queryOptions(genderFilter ? { gender: genderFilter } : undefined)
+		trpc.products.list.queryOptions()
 	);
 	const products = (productsQuery.data ?? []) as Product[];
 
@@ -232,7 +233,7 @@ function App() {
 					>
 						<Menu className="w-6 h-6" />
 					</button>
-					<button className="p-3 hover:text-blue-400" type="button">
+					<button onClick={openSearch} className="p-3 hover:text-blue-400" type="button">
 						<Search className="w-6 h-6" />
 					</button>
 				</header>
@@ -249,42 +250,6 @@ function App() {
 				{/* Products Section */}
 				<section className="bg-gradient-to-b from-white/95 to-gray-100/95 py-12">
 					<div className="max-w-7xl mx-auto px-6">
-						{/* Gender Filter */}
-						<div className="flex justify-center gap-4 mb-12">
-							<button
-								onClick={() => setGenderFilter(null)}
-								className={`px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-colors ${
-									genderFilter === null
-										? "bg-black text-white"
-										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
-								}`}
-								type="button"
-							>
-								Todos
-							</button>
-							<button
-								onClick={() => setGenderFilter("Hombre")}
-								className={`px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-colors ${
-									genderFilter === "Hombre"
-										? "bg-black text-white"
-										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
-								}`}
-								type="button"
-							>
-								Hombre
-							</button>
-							<button
-								onClick={() => setGenderFilter("Mujer")}
-								className={`px-6 py-2 rounded-full font-semibold uppercase tracking-wide transition-colors ${
-									genderFilter === "Mujer"
-										? "bg-black text-white"
-										: "bg-gray-200 text-gray-700 hover:bg-gray-300"
-								}`}
-								type="button"
-							>
-								Mujer
-							</button>
-						</div>
 						{brands.map((brand, brandIndex) => (
 							<div key={brand.name} className={brandIndex > 0 ? "mt-16" : ""}>
 								<div className="flex items-center justify-between mb-8">
